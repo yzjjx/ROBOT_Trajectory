@@ -5,7 +5,8 @@ RoboDK 关节轨迹采样导出工具
 1. 连接当前运行的 RoboDK
 2. 读取当前工作站中的 RoboDK Program
 3. 按用户指定采样频率进行时间采样
-4. 导出 time + q1...qN 到 TXT
+4. 导出 time + q1...qN + dq1...dqN 到 TXT
+   dq 由导出的关节角 q 对时间 t 进行数值微分得到
 
 依赖：
     pip install robodk
@@ -183,6 +184,65 @@ class RoboDKTrajectoryExporter(tk.Tk):
         except Exception as exc:
             self.log_msg(f"刷新程序失败：{exc}")
 
+    @staticmethod
+    def calculate_joint_velocity(rows):
+        """
+        根据 (time, q) 轨迹计算关节速度 dq/dt。
+
+        内点使用中心差分：
+            dq[k] = (q[k+1] - q[k-1]) / (t[k+1] - t[k-1])
+
+        首点使用前向差分，末点使用后向差分。
+
+        单位保持与 q 一致：
+            q=deg -> dq=deg/s
+            q=rad -> dq=rad/s
+        """
+        n = len(rows)
+        if n == 0:
+            return []
+
+        if n == 1:
+            return [(rows[0][0], [0.0] * len(rows[0][1]))]
+
+        velocities = []
+
+        # 首点：前向差分
+        t0, q0 = rows[0]
+        t1, q1 = rows[1]
+        dt = t1 - t0
+        if dt <= 0:
+            raise RuntimeError("轨迹时间不是严格递增，无法计算关节速度 dq。")
+        dq0 = [(q1[j] - q0[j]) / dt for j in range(len(q0))]
+        velocities.append((t0, dq0))
+
+        # 中间点：中心差分
+        for k in range(1, n - 1):
+            tm, qm = rows[k - 1]
+            tc, qc = rows[k]
+            tp, qp = rows[k + 1]
+
+            dt_center = tp - tm
+            if dt_center <= 0:
+                raise RuntimeError("轨迹时间不是严格递增，无法计算关节速度 dq。")
+
+            dq = [
+                (qp[j] - qm[j]) / dt_center
+                for j in range(len(qc))
+            ]
+            velocities.append((tc, dq))
+
+        # 末点：后向差分
+        tn, qn = rows[-1]
+        tp, qp = rows[-2]
+        dt = tn - tp
+        if dt <= 0:
+            raise RuntimeError("轨迹时间不是严格递增，无法计算关节速度 dq。")
+        dqn = [(qn[j] - qp[j]) / dt for j in range(len(qn))]
+        velocities.append((tn, dqn))
+
+        return velocities
+
     def choose_output(self):
         path = filedialog.asksaveasfilename(
             title="保存关节轨迹 TXT",
@@ -323,21 +383,38 @@ class RoboDKTrajectoryExporter(tk.Tk):
             t0 = rows[0][0]
             rows = [(t - t0, q) for t, q in rows]
 
+            # 根据 q(t) 数值微分计算关节速度 dq(t)
+            velocity_rows = self.calculate_joint_velocity(rows)
+
+            if len(velocity_rows) != len(rows):
+                raise RuntimeError("关节速度 dq 计算失败：数据长度不一致。")
+
             os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
 
             with open(output_path, "w", encoding="utf-8", newline="\n") as f:
                 if write_header:
                     unit_text = "deg" if unit == "deg" else "rad"
-                    header = ["time_s"] + [f"q{i+1}_{unit_text}" for i in range(n_dof)]
+                    velocity_unit_text = "deg_s" if unit == "deg" else "rad_s"
+
+                    header = (
+                        ["time_s"]
+                        + [f"q{i+1}_{unit_text}" for i in range(n_dof)]
+                        + [f"dq{i+1}_{velocity_unit_text}" for i in range(n_dof)]
+                    )
                     f.write("\t".join(header) + "\n")
 
-                for t, q in rows:
-                    values = [f"{t:.9f}"] + [f"{v:.9f}" for v in q]
+                for (t, q), (_, dq) in zip(rows, velocity_rows):
+                    values = (
+                        [f"{t:.9f}"]
+                        + [f"{v:.9f}" for v in q]
+                        + [f"{v:.9f}" for v in dq]
+                    )
                     f.write("\t".join(values) + "\n")
 
             duration = rows[-1][0] if rows else 0.0
             self.log_msg(f"导出完成：{len(rows)} 个轨迹点")
             self.log_msg(f"轨迹时长：{duration:.6f} s")
+            self.log_msg("已计算关节速度 dq：由 q(t) 数值微分得到")
             self.log_msg(f"文件：{output_path}")
 
             self.after(

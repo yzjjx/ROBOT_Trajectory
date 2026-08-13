@@ -1,7 +1,8 @@
 <mujoco model="xMateSR4C">
     <compiler angle="radian" meshdir="../stl/" autolimits="true" />
     
-    <option gravity="0 0 -9.81" timestep="0.02"/>
+    <!-- <option gravity="0 0 -9.81" timestep="0.02"/> -->
+    <option gravity="0 0 0" timestep="0.02"/>
 
     <asset>
         <material name="black" rgba="0.0 0.0 0.0 1.0"/>
@@ -89,7 +90,7 @@
     </worldbody>
 
     <actuator>
-        <motor name="motor1" joint="xmate_joint_1" ctrlrange="-300 300" gear="100"/>
+        <motor name="motor1" joint="xmate_joint_1" ctrlrange="-300 300" gear="1"/>
         <motor name="motor2" joint="xmate_joint_2" ctrlrange="-300 300" gear="1"/>
         <motor name="motor3" joint="xmate_joint_3" ctrlrange="-300 300" gear="1"/>
         <motor name="motor4" joint="xmate_joint_4" ctrlrange="-300 300" gear="1"/>
