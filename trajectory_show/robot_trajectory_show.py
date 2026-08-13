@@ -76,7 +76,9 @@ def run(args):
 
     xml_path = args.xml or project_dir / "xml" / "ROKAE_SR4.XML"
     # 导入文件的位置
-    trajectory_path = args.trajectory or project_dir / "Trajectory_txt" / "joint_trajectory.txt"
+    # trajectory_path = args.trajectory or project_dir / "Trajectory_txt" / "joint_trajectory.txt"
+    # 圆弧轨迹
+    trajectory_path = args.trajectory or project_dir / "Trajectory_txt" / "circle_R200.txt"
 
     xml_path = xml_path.resolve()
     trajectory_path = trajectory_path.resolve()
