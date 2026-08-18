@@ -1,4 +1,10 @@
 {
     "python-envs.defaultEnvManager": "ms-python.python:conda",
-    "python-envs.defaultPackageManager": "ms-python.python:conda"
+    "python-envs.defaultPackageManager": "ms-python.python:conda",
+    "cmake.generator": "Visual Studio 17 2022",
+    "cmake.buildDirectory": "${workspaceFolder}/build_msvc",
+    "cmake.configureArgs": [
+        "-A",
+        "x64"
+    ]
 }
