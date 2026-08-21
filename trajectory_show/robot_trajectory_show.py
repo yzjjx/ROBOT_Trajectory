@@ -125,11 +125,17 @@ def run(args):
     script_dir = Path(__file__).resolve().parent
     project_dir = script_dir.parent
 
-    xml_path = args.xml or project_dir / "xml" / "ROKAE_SR4.XML"
-    # 导入文件的位置
-    # trajectory_path = args.trajectory or project_dir / "Trajectory_txt" / "joint_trajectory.txt"
+    # xml_path = args.xml or project_dir / "xml" / "ROKAE_SR4.XML"
+    xml_path = args.xml or project_dir / "xml" / "NB4-R475-04.xml"
+    # 直线轨迹
+    # NB4直线轨迹，(1为直线，2为斜线)速度50mm/s
+    trajectory_path = args.trajectory or project_dir / "Trajectory_txt" / "line_joint_trajectory_NB4_1.txt"
+
     # 圆弧轨迹
-    trajectory_path = args.trajectory or project_dir / "Trajectory_txt" / "circle_R200.txt"
+    # NB4圆弧轨迹半径200与半径20，速度50mm/s
+    # trajectory_path = args.trajectory or project_dir / "Trajectory_txt"/"circle_R200_NB4.txt"
+    # SR4圆弧轨迹半径200与半径20，速度50mm/s
+    # trajectory_path = args.trajectory or project_dir / "Trajectory_txt"/"circle_R20_SR4_V25.txt"
 
     xml_path = xml_path.resolve()
     trajectory_path = trajectory_path.resolve()

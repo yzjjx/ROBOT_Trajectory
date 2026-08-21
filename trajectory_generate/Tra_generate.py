@@ -17,14 +17,20 @@ except ImportError as exc:  # pragma: no cover - 取决于本机Python环境
 
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
-DEFAULT_POSE_FILE = PROJECT_DIR / "MATLAB_code" / "circle_R200_TCP_poses.txt"
-DEFAULT_URDF_FILE = PROJECT_DIR / "urdf" / "ROKAE_SR4.urdf"
-DEFAULT_OUTPUT_FILE = PROJECT_DIR / "Trajectory_txt" / "circle_R200.txt"
-DEFAULT_END_FRAME = "xMateSR4C_link6"
+DEFAULT_POSE_FILE = PROJECT_DIR / "MATLAB_code" / "circle_R200_TCP_poses_NB4_V25.txt"
+# DEFAULT_URDF_FILE = PROJECT_DIR / "urdf" / "ROKAE_SR4.urdf"
+DEFAULT_URDF_FILE = PROJECT_DIR / "urdf" / "NB4-R475-04_mod_v3.urdf"
+DEFAULT_OUTPUT_FILE = PROJECT_DIR / "Trajectory_txt" / "circle_R200_joint_trajectory_NB4_v25.txt"
+# DEFAULT_END_FRAME = "xMateSR4C_link6"
+DEFAULT_END_FRAME = "NB4-R475-04_link6"
 # 该初值对应当前圆轨迹的一条可连续运行整圈、且不触碰关节限位的SR4 IK分支。
 DEFAULT_INITIAL_Q = np.array(
-    [-0.212847607, 0.276685742, -1.629032023,
-     -0.581638679, 0.394670354, 0.545525568]
+    # NB4参数
+    [-0.6218991949623647, 0.7305793883450231, 0.1347388728460672,
+     -0.7552860584329456, -1.0157289195687005, -2.6810048147225847]
+    # SR4参数
+    # [-0.212847607, 0.276685742, -1.629032023,
+    # -0.581638679, 0.394670354, 0.545525568]
 )
 
 
@@ -42,6 +48,18 @@ def parse_arguments() -> argparse.Namespace:
                         help="与输入TCP位姿对应的URDF末端帧名称。")
     parser.add_argument("--frequency", type=float, default=1000.0,
                         help="轨迹采样频率，单位Hz，默认1000。")
+    parser.add_argument(
+        "--speed-profile", choices=("s-curve", "uniform"), default="s-curve",
+        help="速度规划方式：默认s-curve平滑启停；uniform保留原始匀速输出。",
+    )
+    parser.add_argument(
+        "--ramp-time", type=float, default=1.0,
+        help="S型加速段和减速段各自的期望时长，单位s，默认1.0。",
+    )
+    parser.add_argument(
+        "--joint-velocity-scale", type=float, default=0.8,
+        help="允许使用的URDF关节速度上限比例，范围(0, 1]，默认0.8。",
+    )
     parser.add_argument("--translation-scale", type=float, default=1e-3,
                         help="输入平移到URDF米制单位的比例，毫米输入默认1e-3。")
     parser.add_argument("--max-iterations", type=int, default=80,
@@ -242,18 +260,173 @@ def solve_trajectory(
     return joint_positions, residuals
 
 
-def save_joint_trajectory(
-    output_path: Path,
+def interpolate_joint_path(
+    joint_positions: np.ndarray,
+    source_progress: np.ndarray,
+    target_progress: np.ndarray,
+) -> np.ndarray:
+    """沿离散关节路径插值，不改变已求得的IK分支。"""
+    result = np.empty((len(target_progress), joint_positions.shape[1]))
+    for joint_index in range(joint_positions.shape[1]):
+        result[:, joint_index] = np.interp(
+            target_progress,
+            source_progress,
+            joint_positions[:, joint_index],
+        )
+    return result
+
+
+def plan_joint_trajectory(
     joint_positions: np.ndarray,
     frequency: float,
-) -> None:
+    velocity_limits: np.ndarray,
+    speed_profile: str,
+    ramp_time: float,
+    joint_velocity_scale: float,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, dict[str, float | str]]:
+    """对几何关节路径进行时间参数化，并返回等周期的位置和速度。"""
     if frequency <= 0.0:
         raise ValueError("frequency必须大于0。")
+    if joint_positions.ndim != 2 or len(joint_positions) < 2:
+        raise ValueError("关节路径至少需要两个轨迹点。")
+    if speed_profile not in {"s-curve", "uniform"}:
+        raise ValueError("speed_profile必须是s-curve或uniform。")
+    if ramp_time <= 0.0:
+        raise ValueError("ramp_time必须大于0。")
+    if not 0.0 < joint_velocity_scale <= 1.0:
+        raise ValueError("joint_velocity_scale必须位于(0, 1]。")
 
     dt = 1.0 / frequency
-    times = np.arange(len(joint_positions), dtype=float) * dt
-    edge_order = 2 if len(joint_positions) >= 3 else 1
-    joint_velocities = np.gradient(joint_positions, dt, axis=0, edge_order=edge_order)
+    point_count = len(joint_positions)
+    nominal_duration = (point_count - 1) * dt
+    edge_order = 2 if point_count >= 3 else 1
+
+    if speed_profile == "uniform":
+        times = np.arange(point_count, dtype=float) * dt
+        planned_positions = joint_positions.copy()
+        joint_velocities = np.gradient(
+            planned_positions, dt, axis=0, edge_order=edge_order
+        )
+        valid_limits = np.isfinite(velocity_limits) & (velocity_limits > 0.0)
+        if np.any(valid_limits):
+            peak_ratio = float(np.max(
+                np.abs(joint_velocities[:, valid_limits])
+                / velocity_limits[valid_limits]
+            ))
+        else:
+            peak_ratio = 0.0
+        info = {
+            "profile": "uniform",
+            "nominal_duration": nominal_duration,
+            "duration": nominal_duration,
+            "ramp_time": 0.0,
+            "peak_velocity_ratio": peak_ratio,
+        }
+        return times, planned_positions, joint_velocities, info
+
+    source_progress = np.linspace(0.0, 1.0, point_count)
+    dq_ds = np.gradient(
+        joint_positions, source_progress, axis=0, edge_order=edge_order
+    )
+
+    # 输入位姿默认按frequency等周期采样，因此1/nominal_duration是原始
+    # 路径的名义进度速度。若它会超过URDF速度限位，则自动延长运行时间。
+    max_progress_rate = 1.0 / nominal_duration
+    velocity_limits = np.asarray(velocity_limits, dtype=float)
+    if velocity_limits.shape != (joint_positions.shape[1],):
+        raise ValueError("URDF关节速度上限数量与关节路径维数不一致。")
+    valid_limits = np.isfinite(velocity_limits) & (velocity_limits > 0.0)
+    path_slopes = np.max(np.abs(dq_ds), axis=0)
+    constrained = valid_limits & (path_slopes > 1e-12)
+    if np.any(constrained):
+        allowed_rates = (
+            joint_velocity_scale * velocity_limits[constrained]
+            / path_slopes[constrained]
+        )
+        max_progress_rate = min(max_progress_rate, float(np.min(allowed_rates)))
+    if not np.isfinite(max_progress_rate) or max_progress_rate <= 0.0:
+        raise ValueError("无法根据关节速度上限计算有效的路径速度。")
+
+    constant_speed_duration = 1.0 / max_progress_rate
+    actual_ramp_time = min(ramp_time, constant_speed_duration)
+    requested_duration = constant_speed_duration + actual_ramp_time
+    segment_count = max(2, int(np.ceil(requested_duration * frequency)))
+    total_duration = segment_count * dt
+
+    # 向上取整到控制周期后，通过略微降低峰值速度精确走完整条路径。
+    constant_speed_duration = total_duration - actual_ramp_time
+    max_progress_rate = 1.0 / constant_speed_duration
+    cruise_time = max(0.0, constant_speed_duration - actual_ramp_time)
+    times = np.arange(segment_count + 1, dtype=float) * dt
+    progress = np.empty_like(times)
+    progress_rate = np.empty_like(times)
+
+    acceleration_mask = times <= actual_ramp_time
+    cruise_end = actual_ramp_time + cruise_time
+    cruise_mask = (times > actual_ramp_time) & (times < cruise_end)
+    deceleration_mask = ~(acceleration_mask | cruise_mask)
+
+    u = times[acceleration_mask] / actual_ramp_time
+    smooth_integral = u**3 - 0.5 * u**4
+    progress[acceleration_mask] = (
+        max_progress_rate * actual_ramp_time * smooth_integral
+    )
+    progress_rate[acceleration_mask] = max_progress_rate * (3.0*u**2 - 2.0*u**3)
+
+    cruise_times = times[cruise_mask] - actual_ramp_time
+    progress[cruise_mask] = (
+        0.5 * max_progress_rate * actual_ramp_time
+        + max_progress_rate * cruise_times
+    )
+    progress_rate[cruise_mask] = max_progress_rate
+
+    remaining_u = (total_duration - times[deceleration_mask]) / actual_ramp_time
+    remaining_u = np.clip(remaining_u, 0.0, 1.0)
+    remaining_integral = remaining_u**3 - 0.5 * remaining_u**4
+    progress[deceleration_mask] = (
+        1.0 - max_progress_rate * actual_ramp_time * remaining_integral
+    )
+    progress_rate[deceleration_mask] = (
+        max_progress_rate * (3.0*remaining_u**2 - 2.0*remaining_u**3)
+    )
+
+    progress = np.clip(progress, 0.0, 1.0)
+    progress[0], progress[-1] = 0.0, 1.0
+    progress_rate[0], progress_rate[-1] = 0.0, 0.0
+
+    planned_positions = interpolate_joint_path(
+        joint_positions, source_progress, progress
+    )
+    planned_dq_ds = interpolate_joint_path(dq_ds, source_progress, progress)
+    joint_velocities = planned_dq_ds * progress_rate[:, None]
+    planned_positions[0] = joint_positions[0]
+    planned_positions[-1] = joint_positions[-1]
+    joint_velocities[0] = 0.0
+    joint_velocities[-1] = 0.0
+
+    if np.any(valid_limits):
+        peak_ratio = float(np.max(
+            np.abs(joint_velocities[:, valid_limits])
+            / velocity_limits[valid_limits]
+        ))
+    else:
+        peak_ratio = 0.0
+    info = {
+        "profile": "s-curve",
+        "nominal_duration": nominal_duration,
+        "duration": total_duration,
+        "ramp_time": actual_ramp_time,
+        "peak_velocity_ratio": peak_ratio,
+    }
+    return times, planned_positions, joint_velocities, info
+
+
+def save_joint_trajectory(
+    output_path: Path,
+    times: np.ndarray,
+    joint_positions: np.ndarray,
+    joint_velocities: np.ndarray,
+) -> None:
     output_data = np.column_stack((times, joint_positions, joint_velocities))
 
     joint_count = joint_positions.shape[1]
@@ -305,9 +478,27 @@ def main() -> int:
         model, poses, frame_id, args.initial_q,
         args.max_iterations, args.tolerance,
     )
-    save_joint_trajectory(output_path, joint_positions, args.frequency)
+    times, planned_positions, joint_velocities, plan_info = plan_joint_trajectory(
+        joint_positions,
+        args.frequency,
+        model.velocityLimit,
+        args.speed_profile,
+        args.ramp_time,
+        args.joint_velocity_scale,
+    )
+    save_joint_trajectory(
+        output_path, times, planned_positions, joint_velocities
+    )
 
     print(f"最大SE(3)误差范数：{residuals.max():.3e}")
+    print(f"速度规划：{plan_info['profile']}")
+    print(
+        f"轨迹时长：{plan_info['duration']:.3f} s "
+        f"(原始名义时长：{plan_info['nominal_duration']:.3f} s)"
+    )
+    if plan_info["profile"] == "s-curve":
+        print(f"S型加速/减速时间：各{plan_info['ramp_time']:.3f} s")
+    print(f"最大关节速度/URDF限速：{plan_info['peak_velocity_ratio']:.3%}")
     print(f"关节轨迹已写入：{output_path}")
     return 0
 

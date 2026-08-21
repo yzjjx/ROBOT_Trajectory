@@ -1,0 +1,279 @@
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="NB4-R475-04">
+  <!-- Constants for robot dimensions -->
+  <material name="black">
+    <color rgba="0.0 0.0 0.0 1.0"/>
+  </material>
+  <material name="blue">
+    <color rgba="0.0 0.0 0.8 1.0"/>
+  </material>
+  <material name="green">
+    <color rgba="0.0 0.8 0.0 1.0"/>
+  </material>
+  <material name="grey">
+    <color rgba="0.2 0.2 0.2 1.0"/>
+  </material>
+  <material name="orange">
+    <color rgba="1.0 0.423529411765 0.0392156862745 1.0"/>
+  </material>
+  <material name="brown">
+    <color rgba="0.870588235294 0.811764705882 0.764705882353 1.0"/>
+  </material>
+  <material name="red">
+    <color rgba="0.8 0.0 0.0 1.0"/>
+  </material>
+  <material name="white">
+    <color rgba="1.0 1.0 1.0 1.0"/>
+  </material>
+  <material name="Beige">
+    <color rgba="1.0 0.784 0.5765 1.0"/>
+  </material>
+  <link name="NB4-R475-04_base">
+    <visual>
+      <geometry>
+        <mesh filename="../stl/NB4_meshes/base_link.STL"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+      <material name="brown"/>
+    </visual>
+    <inertial>
+      <mass value="4.542"/>
+      <inertia ixx="26.73069700" ixy="-0.38913900" ixz="0.98175600" iyy="23.30584900" iyz="1.36798600" izz="18.70524300"/>
+      <origin rpy="0 0 0" xyz="-13.755 16.08 247.871"/>
+    </inertial>
+    <collision>
+      <geometry>
+        <mesh filename="../stl/NB4_meshes/base_link.STL" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+    </collision>
+  </link>
+  <joint name="NB4-R475-04_joint_1" type="revolute">
+    <parent link="NB4-R475-04_base"/>
+    <child link="NB4-R475-04_link1"/>
+    <limit effort="4" lower="-2.9845" upper="2.9845" velocity="45.0"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="0 0 0" xyz="0.0 0.0 0.333"/>
+  </joint>
+  <transmission name="tran1">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="NB4-R475-04_joint_7">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor1">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <!--link 1-->
+  <link name="NB4-R475-04_link1">
+    <visual>
+      <geometry>
+        <mesh filename="../stl/NB4_meshes/RK_Link_1.STL" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="brown"/>
+    </visual>
+    <inertial>
+      <mass value="4.542"/>
+      <inertia ixx="0.0607983150088000" ixy="0.000615462376800000" ixz="-0.00433488437100000" iyy="0.0570584049335500"  iyz="0.00758329513600000" izz="0.0207389981023500"/>
+      <origin rpy="0 0 0" xyz="-0.013755 0.01608 -0.0851"/>
+    </inertial>
+    <collision>
+      <geometry>
+        <mesh filename="../stl/NB4_meshes/RK_Link_1.STL" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+  </link>
+  <joint name="NB4-R475-04_joint_2" type="revolute">
+    <parent link="NB4-R475-04_link1"/>
+    <child link="NB4-R475-04_link2"/>
+    <limit effort="91" lower="-1.576" upper="2.2742" velocity="36.0"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="-1.57079632679 -1.57079632679 0" xyz="0.0 0.0 0.0"/>
+  </joint>
+  <transmission name="tran2">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="xmate_joint_2">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor2">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <!--link 2-->
+  <link name="NB4-R475-04_link2">
+    <visual>
+      <geometry>
+        <mesh filename="../stl/NB4_meshes/RK_Link_2.STL" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0.0"/>
+      <material name="brown"/>
+    </visual>
+    <inertial>
+      <mass value="3.5"/>
+      <inertia ixx="0.0137066700000000" ixy="0.00276824500000000" ixz="-0.00496010500000000" iyy="0.0774443500000000"  iyz="0.000522415000000000" izz="0.07009695"/>
+      <origin rpy="0 0 0" xyz="0.1047 -0.0081 0.0149"/>
+    </inertial>
+    <collision>
+      <geometry>
+        <mesh filename="../stl/NB4_meshes/RK_Link_2.STL" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0.0"/>
+    </collision>
+  </link>
+  <joint name="NB4-R475-04_joint_3" type="revolute">
+    <parent link="NB4-R475-04_link2"/>
+    <child link="NB4-R475-04_link3"/>
+    <limit effort="53" lower="-3.4994" upper="0.9687" velocity="36.0"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="0 0 0" xyz="0.225 0.0 0.0"/>
+  </joint>
+  <transmission name="tran3">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="xmate_joint_3">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor3">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <!--link 3-->
+  <link name="NB4-R475-04_link3">
+    <visual>
+      <geometry>
+        <mesh filename="../stl/NB4_meshes/RK_Link_3.STL" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="brown"/>
+    </visual>
+    <inertial>
+      <mass value="2.183"/>
+      <inertia ixx="0.00515766238113200" ixy="0.000615219221100000"  ixz="-7.97136735220000e-05" iyy="0.00450496189921900"  iyz="-0.000175684173400000" izz="0.00456085917808700"/>
+      <origin rpy="0 0 0" xyz="-0.001367 0.0051 0.006798 "/>
+    </inertial>
+    <collision>
+      <geometry>
+        <mesh filename="../stl/NB4_meshes/RK_Link_3.STL" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+  </link>
+  <joint name="NB4-R475-04_joint_4" type="revolute">
+    <parent link="NB4-R475-04_link3"/>
+    <child link="NB4-R475-04_link4"/>
+    <limit effort="42" lower="-2.9932" upper="2.9932" velocity="55.0"/>
+    <!--     lower="-6.2832" upper="6.2832" -->
+    <axis xyz="0 0 1"/>
+    <origin rpy="-1.57079632679 0 0" xyz="0.015 0.25 0"/>
+  </joint>
+  <transmission name="tran4">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="xmate_joint_4">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor4">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <!--link 4-->
+  <link name="NB4-R475-04_link4">
+    <visual>
+      <geometry>
+        <mesh filename="../stl/NB4_meshes/RK_Link_4.STL" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+      <material name="brown"/>
+    </visual>
+    <inertial>
+      <mass value="2.167"/>
+      <inertia ixx="0.0373834135" ixy="-5.41750000000000e-07" ixz="-0.000118643250000000" iyy="0.0368259055000000"  iyz="-0.000418643250000000" izz="0.0029"/>
+      <origin rpy="0 0 0" xyz="-0.0005 -0.0005 -0.1095"/>
+    </inertial>
+    <collision>
+      <geometry>
+        <mesh filename="../stl/NB4_meshes/RK_Link_4.STL" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+    </collision>
+  </link>
+  <joint name="NB4-R475-04_joint_5" type="revolute">
+    <parent link="NB4-R475-04_link4"/>
+    <child link="NB4-R475-04_link5"/>
+    <limit effort="15" lower="-2.1031" upper="2.1031" velocity="45.0"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="1.57079632679 0 0" xyz="0.0 0.0 0.0"/>
+  </joint>
+  <transmission name="tran5">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="xmate_joint_5">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor5">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <!--link 5-->
+  <link name="NB4-R475-04_link5">
+    <visual>
+      <geometry>
+        <mesh filename="../stl/NB4_meshes/RK_Link_5.STL" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="brown"/>
+    </visual>
+    <inertial>
+      <mass value="1.178"/>
+      <inertia ixx="0.00171515632449600" ixy="-1.11858726400000e-06" ixz="-2.63061184000003e-07" iyy="0.00141505500"  iyz="-4.74002186480000e-05" izz="0.00175574006852000"/>
+      <origin rpy="0 0 0" xyz="0.000048 0.017006 0.001186 "/>
+    </inertial>
+    <collision>
+      <geometry>
+        <mesh filename="../stl/NB4_meshes/RK_Link_5.STL" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+  </link>
+  <joint name="NB4-R475-04_joint_6" type="revolute">
+    <parent link="NB4-R475-04_link5"/>
+    <child link="NB4-R475-04_link6"/>
+    <limit effort="11" lower="-6.2832" upper="6.2832" velocity="86.0"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="-1.57079632679 0.0 0" xyz="0.0 0.068 0.0"/>
+  </joint>
+  <transmission name="tran6">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="xmate_joint_6">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor6">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <!--link 6-->
+  <link name="NB4-R475-04_link6">
+    <visual>
+      <geometry>
+        <mesh filename="../stl/NB4_meshes/RK_Link_6.STL" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+      <material name="brown"/>
+    </visual>
+    <inertial>
+      <mass value="0.222"/>
+      <inertia ixx="7.01251869900000e-05" ixy="-3.15311360000000e-08" ixz="-3.73894768000002e-07" iyy="6.99167782860000e-05"  iyz="3.06076640000031e-08" izz="6.52818470400000e-05"/>
+      <origin rpy="0 0 0" xyz="-0.000088 0.000024 -0.011563"/>
+    </inertial>
+    <collision>
+      <geometry>
+        <mesh filename="../stl/NB4_meshes/RK_Link_6.STL" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+    </collision>
+  </link>
+</robot>
