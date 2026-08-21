@@ -17,10 +17,10 @@ except ImportError as exc:  # pragma: no cover - 取决于本机Python环境
 
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
-DEFAULT_POSE_FILE = PROJECT_DIR / "MATLAB_code" / "circle_R200_TCP_poses_NB4.txt"
+DEFAULT_POSE_FILE = PROJECT_DIR / "MATLAB_code" / "circle_R20_TCP_poses_NB4_V25.txt"
 # DEFAULT_URDF_FILE = PROJECT_DIR / "urdf" / "ROKAE_SR4.urdf"
 DEFAULT_URDF_FILE = PROJECT_DIR / "urdf" / "NB4-R475-04_mod_v3.urdf"
-DEFAULT_OUTPUT_FILE = PROJECT_DIR / "Trajectory_txt" / "circle_R200_joint_trajectory_NB4.txt"
+DEFAULT_OUTPUT_FILE = PROJECT_DIR / "Trajectory_txt" / "circle_R20_joint_trajectory_NB4_v25.txt"
 # DEFAULT_END_FRAME = "xMateSR4C_link6"
 DEFAULT_END_FRAME = "NB4-R475-04_link6"
 # 该初值对应当前圆轨迹的一条可连续运行整圈、且不触碰关节限位的SR4 IK分支。
