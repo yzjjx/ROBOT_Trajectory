@@ -129,7 +129,7 @@ def run(args):
     xml_path = args.xml or project_dir / "xml" / "NB4-R475-04.xml"
     # 直线轨迹
     # NB4直线轨迹，(1为直线，2为斜线)速度50mm/s
-    trajectory_path = args.trajectory or project_dir / "Trajectory_txt" / "line_joint_trajectory_NB4_1.txt"
+    trajectory_path = args.trajectory or project_dir / "Trajectory_txt" / "circle_R200_joint_trajectory_NB4.txt"
 
     # 圆弧轨迹
     # NB4圆弧轨迹半径200与半径20，速度50mm/s

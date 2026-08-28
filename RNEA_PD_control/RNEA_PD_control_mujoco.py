@@ -156,7 +156,7 @@ def run(args):
     xml_path = (args.xml or project_dir / "xml" / "ROKAE_SR4.XML").resolve()
     urdf_path = (args.urdf or project_dir / "urdf" / "ROKAE_SR4.urdf").resolve()
     trajectory_path = (
-        args.trajectory or project_dir / "Trajectory_txt" / "circle_R200.txt"
+        args.trajectory or project_dir / "Trajectory_txt" / "circle_R200_SR4.txt"
     ).resolve()
     log_path = (
         args.log
