@@ -1,0 +1,99 @@
+<mujoco model="NB4-R475-04">
+    <compiler angle="radian" meshdir="../stl/NB4_meshes/" autolimits="true"/>
+
+    <option gravity="0 0 0" timestep="0.02"/>
+
+    <asset>
+        <material name="black" rgba="0.0 0.0 0.0 1.0"/>
+        <material name="blue" rgba="0.0 0.0 0.8 1.0"/>
+        <material name="green" rgba="0.0 0.8 0.0 1.0"/>
+        <material name="grey" rgba="0.2 0.2 0.2 1.0"/>
+        <material name="orange" rgba="1.0 0.423529411765 0.0392156862745 1.0"/>
+        <material name="brown" rgba="0.870588235294 0.811764705882 0.764705882353 1.0"/>
+        <material name="red" rgba="0.8 0.0 0.0 1.0"/>
+        <material name="white" rgba="1.0 1.0 1.0 1.0"/>
+        <material name="Beige" rgba="1.0 0.784 0.5765 1.0"/>
+
+        <mesh name="base_mesh" file="base_link.STL"/>
+        <mesh name="link1_mesh" file="RK_Link_1.STL"/>
+        <mesh name="link2_mesh" file="RK_Link_2.STL"/>
+        <mesh name="link3_mesh" file="RK_Link_3.STL"/>
+        <mesh name="link4_mesh" file="RK_Link_4.STL"/>
+        <mesh name="link5_mesh" file="RK_Link_5.STL"/>
+        <mesh name="link6_mesh" file="RK_Link_6.STL"/>
+    </asset>
+
+    <worldbody>
+        <light pos="0 0 2" dir="0 0 -1" diffuse="1 1 1"/>
+        <geom name="floor" type="plane" size="2 2 0.1" rgba="0.9 0.9 0.9 1"/>
+
+        <body name="NB4-R475-04_base" pos="0 0 0">
+            <inertial pos="-13.755 16.08 247.871" mass="4.542"
+                fullinertia="26.730697 23.305849 18.705243 -0.389139 0.981756 1.367986"/>
+            <geom type="mesh" mesh="base_mesh" material="brown"/>
+
+            <body name="NB4-R475-04_link1" pos="0 0 0.333">
+                <inertial pos="-0.013755 0.01608 -0.0851" mass="4.542"
+                    fullinertia="0.0607983150088 0.05705840493355 0.02073899810235 0.0006154623768 -0.004334884371 0.007583295136"/>
+                <joint name="NB4-R475-04_joint_1" type="hinge" axis="0 0 1"
+                    range="-2.9845 2.9845"/>
+                <geom type="mesh" mesh="link1_mesh" material="brown"/>
+
+                <body name="NB4-R475-04_link2" pos="0 0 0" quat="0.5 -0.5 -0.5 -0.5">
+                    <inertial pos="0.1047 -0.0081 0.0149" mass="3.5"
+                        fullinertia="0.01370667 0.07744435 0.07009695 0.002768245 -0.004960105 0.000522415"/>
+                    <joint name="NB4-R475-04_joint_2" type="hinge" axis="0 0 1"
+                        range="-1.576 2.2742"/>
+                    <geom type="mesh" mesh="link2_mesh" material="brown"/>
+
+                    <body name="NB4-R475-04_link3" pos="0.225 0 0">
+                        <inertial pos="-0.001367 0.0051 0.006798" mass="2.183"
+                            fullinertia="0.005157662381132 0.004504961899219 0.004560859178087 0.0006152192211 -0.000079713673522 -0.0001756841734"/>
+                        <joint name="NB4-R475-04_joint_3" type="hinge" axis="0 0 1"
+                            range="-3.4994 0.9687"/>
+                        <geom type="mesh" mesh="link3_mesh" material="brown"/>
+
+                        <body name="NB4-R475-04_link4" pos="0.015 0.25 0"
+                            quat="0.707106781186548 -0.707106781186547 0 0">
+                            <inertial pos="-0.0005 -0.0005 -0.1095" mass="2.167"
+                                fullinertia="0.0373834135 0.0368259055 0.0029 -0.00000054175 -0.00011864325 -0.00041864325"/>
+                            <joint name="NB4-R475-04_joint_4" type="hinge" axis="0 0 1"
+                                range="-2.9932 2.9932"/>
+                            <geom type="mesh" mesh="link4_mesh" material="brown"/>
+
+                            <body name="NB4-R475-04_link5" pos="0 0 0"
+                                quat="0.707106781186548 0.707106781186547 0 0">
+                                <inertial pos="0.000048 0.017006 0.001186" mass="1.178"
+                                    fullinertia="0.001715156324496 0.001415055 0.00175574006852 -0.000001118587264 -0.000000263061184 -0.000047400218648"/>
+                                <joint name="NB4-R475-04_joint_5" type="hinge" axis="0 0 1"
+                                    range="-2.1031 2.1031"/>
+                                <geom type="mesh" mesh="link5_mesh" material="brown"/>
+
+                                <body name="NB4-R475-04_link6" pos="0 0.068 0"
+                                    quat="0.707106781186548 -0.707106781186547 0 0">
+                                    <inertial pos="-0.000088 0.000024 -0.011563" mass="0.222"
+                                        fullinertia="0.00007012518699 0.000069916778286 0.00006528184704 -0.000000031531136 -0.000000373894768 0.000000030607664"/>
+                                    <joint name="NB4-R475-04_joint_6" type="hinge" axis="0 0 1"
+                                        range="-6.2832 6.2832"/>
+                                    <geom type="mesh" mesh="link6_mesh" material="brown"/>
+
+                                    <site name="tool_site" pos="0 0 0" quat="1 0 0 0"
+                                        type="sphere" size="0.008" rgba="1 0 0 1"/>
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+    </worldbody>
+
+    <actuator>
+        <motor name="motor1" joint="NB4-R475-04_joint_1" ctrlrange="-4 4" gear="1"/>
+        <motor name="motor2" joint="NB4-R475-04_joint_2" ctrlrange="-91 91" gear="1"/>
+        <motor name="motor3" joint="NB4-R475-04_joint_3" ctrlrange="-53 53" gear="1"/>
+        <motor name="motor4" joint="NB4-R475-04_joint_4" ctrlrange="-42 42" gear="1"/>
+        <motor name="motor5" joint="NB4-R475-04_joint_5" ctrlrange="-15 15" gear="1"/>
+        <motor name="motor6" joint="NB4-R475-04_joint_6" ctrlrange="-11 11" gear="1"/>
+    </actuator>
+</mujoco>
