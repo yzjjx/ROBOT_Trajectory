@@ -26,3 +26,15 @@
 </div>
   
 之后，将理想TCP轨迹输入到Python_code\Tra_generate_Pinocchio_DH.py中，可以求解IK生成实际机器人的关节角  
+
+可以在mujoco中看机器人轨迹仿真，代码为：Python_code\trajectory_show\robot_trajectory_show.py  
+
+轨迹仿真代码运行效果如下图所示：
+
+<div align="center">
+    <img src="fig\fig1\2_mujoco_traj.png">
+    <br>
+    图2：Mujoco轨迹仿真
+</div>
+  
+
