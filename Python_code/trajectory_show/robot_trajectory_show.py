@@ -125,8 +125,10 @@ def run(args):
     script_dir = Path(__file__).resolve().parent
     project_dir = script_dir.parent
 
-    xml_path = args.xml or project_dir /".."/ "xml" / "ROKAE_SR4.XML"
+    # xml_path = args.xml or project_dir /".."/ "xml" / "ROKAE_SR4.XML"
     # xml_path = args.xml or project_dir / "xml" / "NB4-R475-04.xml"
+    xml_path = args.xml or project_dir /".."/ "xml" / "ROKAE_CR20.XML"
+
     # 直线轨迹
     # # NB4直线轨迹，速度50mm/s
     # trajectory_path = args.trajectory or project_dir / "Trajectory_txt" / "circle_R200_joint_trajectory_NB4.txt"
@@ -135,7 +137,9 @@ def run(args):
     # NB4圆弧轨迹半径200与半径20，速度50mm/s
     # trajectory_path = args.trajectory or project_dir / "Trajectory_txt"/"circle_R200_NB4.txt"
     # SR4圆弧轨迹半径200与半径20，速度50mm/s
-    trajectory_path = args.trajectory or project_dir /".."/ "Trajectory_txt"/"circle_R200_joint_trajectory_SR4_V50.txt"
+    # trajectory_path = args.trajectory or project_dir /".."/ "Trajectory_txt"/"circle_R200_joint_trajectory_SR4_V50.txt"
+    # CR20圆弧轨迹半径400与半径20，速度50mm/s
+    trajectory_path = args.trajectory or project_dir /".."/ "Trajectory_txt"/"circle_R500_joint_trajectory_CR20_V50.txt"
 
     xml_path = xml_path.resolve()
     trajectory_path = trajectory_path.resolve()

@@ -13,6 +13,7 @@ from pathlib import Path
 
 import numpy as np
 
+# 从另一个文件获取机器人参数
 from Tra_generate_Pinocchio_DH import (
     DEFAULT_INITIAL_Q,
     DEFAULT_TCP_FRAME,
@@ -26,9 +27,9 @@ from Tra_generate_Pinocchio_DH import (
 # 目标 TCP 位姿：平移单位 m。
 TARGET_TCP = np.array(
     [
-        [0.0, 0.0, 1.0, 0.5141421],
-        [0.0, 1.0, 0.0, 0.0],
-        [-1.0, 0.0, 0.0, 0.4141421],
+        [0.0, 0.0, 1.0, 0.350+0.300-0.353606789],
+        [0.0, 1.0, 0.0, 0],
+        [-1.0, 0.0, 0.0, 1+0.5+0.353606789],
         [0.0, 0.0, 0.0, 1.0],
     ],
     dtype=float,
@@ -36,7 +37,7 @@ TARGET_TCP = np.array(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="使用 URDF + Pinocchio 搜索 SR4 的不同 IK 分支。"
+        description="使用 URDF + Pinocchio 搜索机器人的不同 IK 分支。"
     )
     parser.add_argument("--urdf", type=Path, default=DEFAULT_URDF_FILE)
     parser.add_argument("--tcp-frame", default=DEFAULT_TCP_FRAME)

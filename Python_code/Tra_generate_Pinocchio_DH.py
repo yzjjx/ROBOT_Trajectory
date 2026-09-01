@@ -19,13 +19,13 @@ if not hasattr(pin, "buildModelFromUrdf"):
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_URDF_FILE = PROJECT_ROOT / "urdf" / "ROKAE_SR4.urdf"
-DEFAULT_POSE_FILE = PROJECT_ROOT / "Trajectory_TCP" / "circle_R200_TCP_poses_SR4_V50.txt"
-DEFAULT_OUTPUT_FILE = PROJECT_ROOT / "Trajectory_txt" / "circle_R200_joint_trajectory_SR4_V50.txt"
+DEFAULT_URDF_FILE = PROJECT_ROOT / "urdf" / "ROKAE_CR20.urdf"
+DEFAULT_POSE_FILE = PROJECT_ROOT / "Trajectory_TCP" / "circle_R500_TCP_poses_CR20_V50.txt"
+DEFAULT_OUTPUT_FILE = PROJECT_ROOT / "Trajectory_txt" / "circle_R500_joint_trajectory_CR20_V50.txt"
 
 # link6 坐标系位于第 6 轴法兰处，本脚本将它作为 TCP 坐标系。
-DEFAULT_TCP_FRAME = "xMateSR4C_link6"
-DEFAULT_INITIAL_Q = np.deg2rad([-17.67, 10.51, -126.39, -23.57, 49.38, 15.86])
+DEFAULT_TCP_FRAME = "XMC20-R1650-W7S3B1_link6"
+DEFAULT_INITIAL_Q = np.deg2rad([-133.471137, -31.522699, -50.446545, -48.115254, 102.892501, 166.028089])
 JOINT_COUNT = len(DEFAULT_INITIAL_Q)
 
 

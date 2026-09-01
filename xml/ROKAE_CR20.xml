@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="XMC20-R1650-W7S3B1">
+  <compiler angle="radian" />
+  <asset>
+    <mesh name="XMC20-R1650-W7S3B1_base" content_type="model/stl" file="../stl/CR20/XMC20-R1650-W7S3B1_base.stl" scale="0.001 0.001 0.001" />
+    <mesh name="XMC20-R1650-W7S3B1_link1" content_type="model/stl" file="../stl/CR20/XMC20-R1650-W7S3B1_link1.stl" scale="0.001 0.001 0.001" />
+    <mesh name="XMC20-R1650-W7S3B1_link2" content_type="model/stl" file="../stl/CR20/XMC20-R1650-W7S3B1_link2.stl" scale="0.001 0.001 0.001" />
+    <mesh name="XMC20-R1650-W7S3B1_link3" content_type="model/stl" file="../stl/CR20/XMC20-R1650-W7S3B1_link3.stl" scale="0.001 0.001 0.001" />
+    <mesh name="XMC20-R1650-W7S3B1_link4" content_type="model/stl" file="../stl/CR20/XMC20-R1650-W7S3B1_link4.stl" scale="0.001 0.001 0.001" />
+    <mesh name="XMC20-R1650-W7S3B1_link5" content_type="model/stl" file="../stl/CR20/XMC20-R1650-W7S3B1_link5.stl" scale="0.001 0.001 0.001" />
+    <mesh name="XMC20-R1650-W7S3B1_link6" content_type="model/stl" file="../stl/CR20/XMC20-R1650-W7S3B1_link6.stl" scale="0.001 0.001 0.001" />
+  </asset>
+  <worldbody>
+    <geom type="mesh" rgba="1 1 1 1" mesh="XMC20-R1650-W7S3B1_base" />
+    <body name="XMC20-R1650-W7S3B1_link1" pos="0 0 0.418">
+      <inertial pos="0.00024 -0.054541 0.325133" quat="0.963831 -0.266297 -0.00378525 -0.0100479" mass="18.196" diaginertia="0.308518 0.304098 0.101556" />
+      <joint name="XMC20-R1650-W7S3B1_joint_1" pos="0 0 0" axis="0 0 1" range="-6.2832 6.2832" actuatorfrcrange="-762 762" />
+      <geom type="mesh" rgba="1 1 1 1" mesh="XMC20-R1650-W7S3B1_link1" />
+      <body name="XMC20-R1650-W7S3B1_link2">
+        <inertial pos="0.000351 -0.222505 0.392301" quat="0.999903 -0.00654407 -0.000189805 -0.0122801" mass="22.846" diaginertia="3.46406 3.44078 0.156971" />
+        <joint name="XMC20-R1650-W7S3B1_joint_2" pos="0 0 0" axis="0 1 0" range="-6.2832 6.2832" actuatorfrcrange="-762 762" />
+        <geom type="mesh" rgba="1 1 1 1" mesh="XMC20-R1650-W7S3B1_link2" />
+        <body name="XMC20-R1650-W7S3B1_link3" pos="0 0 0.9">
+          <inertial pos="1.1e-05 0.072653 0.060502" quat="0.935415 -0.353551 0.000171856 0.000372123" mass="7.838" diaginertia="0.111551 0.106714 0.0365527" />
+          <joint name="XMC20-R1650-W7S3B1_joint_3" pos="0 0 0" axis="0 -1 0" range="-2.9671 2.9671" actuatorfrcrange="-436 436" />
+          <geom type="mesh" rgba="1 1 1 1" mesh="XMC20-R1650-W7S3B1_link3" />
+          <body name="XMC20-R1650-W7S3B1_link4" pos="0 0 0.75">
+            <inertial pos="-4.9e-05 -0.012031 -0.294371" quat="0.999361 -0.0353143 0.000224814 0.00548642" mass="6.943" diaginertia="0.367219 0.365749 0.0207919" />
+            <joint name="XMC20-R1650-W7S3B1_joint_4" pos="0 0 0" axis="0 0 1" range="-6.2832 6.2832" actuatorfrcrange="-194 194" />
+            <geom type="mesh" rgba="1 1 1 1" mesh="XMC20-R1650-W7S3B1_link4" />
+            <body name="XMC20-R1650-W7S3B1_link5" pos="0 0.17 0">
+              <inertial pos="6.5e-05 0.037815 0.018831" quat="0.514986 0.857197 0.000707965 -0.00116947" mass="2.939" diaginertia="0.0142662 0.011908 0.0068459" />
+              <joint name="XMC20-R1650-W7S3B1_joint_5" pos="0 0 0" axis="0 -1 0" range="-6.2832 6.2832" actuatorfrcrange="-102 102" />
+              <geom type="mesh" rgba="1 1 1 1" mesh="XMC20-R1650-W7S3B1_link5" />
+              <body name="XMC20-R1650-W7S3B1_link6" pos="0 0 0.14">
+                <inertial pos="-3.1e-05 5.2e-05 -0.052799" quat="0.687429 0.000763229 0.000195615 0.726251" mass="1.586" diaginertia="0.00341957 0.00340878 0.00202228" />
+                <joint name="XMC20-R1650-W7S3B1_joint_6" pos="0 0 0" axis="0 0 1" range="-6.2832 6.2832" actuatorfrcrange="-102 102" />
+                <geom type="mesh" rgba="1 1 1 1" mesh="XMC20-R1650-W7S3B1_link6" />
+
+                <!-- 机器人末端 TCP -->
+                <site name="tool_site"
+                    pos="0 0 0"
+                    quat="1 0 0 0"
+                    type="sphere"
+                    size="0.008"
+                    rgba="1 0 0 1"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>
