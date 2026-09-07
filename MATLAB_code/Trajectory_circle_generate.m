@@ -36,10 +36,10 @@ P3 = [350+300; -500; 1000+500];
 points = [P1, P2, P3];
 
 % 采样频率与运行速度
-v = 50;% 单位mm/s
-fre = 1000;% 单位：Hz
+v = 100;% 单位mm/s
+fre = 250;% 单位：Hz
 
-output_txt_name = 'circle_R500_TCP_poses_CR20_V50.txt';
+output_txt_name = 'circle_R500_TCP_poses_CR20_V100.txt';
 
 % TCP相对于基坐标系的姿态
 posture = [0 0 1;

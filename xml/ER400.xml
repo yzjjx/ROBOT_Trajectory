@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mujoco model="ER400-3700">
+    <!-- MuJoCo 使用三角面数低于 200000 的网格副本。 -->
+    <compiler angle="radian" meshdir="../stl/ER400/mujoco" autolimits="true"/>
+    <option gravity="0 0 0" timestep="0.002"/>
+
+    <asset>
+        <material name="robot_white" rgba="0.82 0.84 0.88 1"/>
+        <material name="robot_dark" rgba="0.16 0.18 0.22 1"/>
+        <mesh name="base_mesh" file="Base_Link.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="link1_mesh" file="Link_1.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="link2_mesh" file="Link_2.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="link3_mesh" file="Link_3.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="link4_mesh" file="Link_4.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="link5_mesh" file="Link_5.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="link6_mesh" file="Link_6.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="link7_mesh" file="Link_7.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="link8_mesh" file="Link_8.stl" scale="0.001 0.001 0.001"/>
+    </asset>
+
+    <worldbody>
+        <light pos="0 0 6" dir="0 0 -1" diffuse="1 1 1"/>
+        <geom name="floor" type="plane" size="5 5 0.1" rgba="0.9 0.9 0.9 1"/>
+
+        <body name="ER_link0">
+            <inertial pos="-0.046799 -0.000002 0.111805" mass="250.0045"
+                fullinertia="7.7785169455 10.2970783355 15.8400164445 0.000884805 -0.5092020495 0.001871069"/>
+            <geom type="mesh" mesh="base_mesh" material="robot_dark"/>
+
+            <body name="ER_link1" pos="0 0 0.970">
+                <inertial pos="-0.015 0.009 -0.220" mass="352.603"
+                    fullinertia="20.003 36.625 30.895 2.341 0.907 0.723"/>
+                <joint name="ER_joint1" type="hinge" axis="0 0 1"
+                    range="-3.2288591161895095 3.2288591161895095"/>
+                <geom type="mesh" mesh="link1_mesh" material="robot_white"/>
+
+                <body name="ER_link2" pos="0.35 0 0" quat="0.5 0.5 -0.5 0.5">
+                    <inertial pos="0.426 0.003 -0.225" mass="293.382"
+                        fullinertia="12.346 122.499 121.911 -0.120 13.069 -0.056"/>
+                    <joint name="ER_joint2" type="hinge" axis="0 0 1"
+                        range="-1.4835298641951802 1.1344640137963142"/>
+                    <geom type="mesh" mesh="link2_mesh" material="robot_white"/>
+                    <geom type="mesh" mesh="link7_mesh" material="robot_dark"/>
+                    <geom type="mesh" mesh="link8_mesh" material="robot_dark"/>
+
+                    <body name="ER_link3" pos="1.285 0 0">
+                        <inertial pos="-0.027 0.276 -0.007" mass="275.6615"
+                            fullinertia="69.810 7.419 69.691 -1.873 -0.137 0.798"/>
+                        <joint name="ER_joint3" type="hinge" axis="0 0 1"
+                            range="-1.2217304763960306 3.141592653589793"/>
+                        <geom type="mesh" mesh="link3_mesh" material="robot_white"/>
+
+                        <body name="ER_link4" pos="0.3 -2.052 0"
+                            quat="0 0 -0.7071067811865476 0.7071067811865476">
+                            <inertial pos="0 -0.001 -0.123" mass="27.417"
+                                fullinertia="0.290 0.293 0.067 0 0 -0.006"/>
+                            <joint name="ER_joint4" type="hinge" axis="0 0 1"
+                                range="-6.283185307179586 6.283185307179586"/>
+                            <geom type="mesh" mesh="link4_mesh" material="robot_white"/>
+
+                            <body name="ER_link5"
+                                quat="0 0 -0.7071067811865476 0.7071067811865476">
+                                <inertial pos="0 0.047 0.024" mass="66.507"
+                                    fullinertia="0.906 0.648 0.537 0 0 -0.104"/>
+                                <joint name="ER_joint5" type="hinge" axis="0 0 1"
+                                    range="-2.2689280275926285 2.2689280275926285"/>
+                                <geom type="mesh" mesh="link5_mesh" material="robot_white"/>
+
+                                <body name="ER_link6" pos="0 -0.245 0"
+                                    quat="0 0 -0.7071067811865476 0.7071067811865476">
+                                    <inertial pos="0 0 -0.015" mass="2.851"
+                                        fullinertia="0.00380173 0.003763824 0.007250547 -0.000000027 -0.000000003 -0.000002715"/>
+                                    <joint name="ER_joint6" type="hinge" axis="0 0 1"
+                                        range="-6.283185307179586 6.283185307179586"/>
+                                    <geom type="mesh" mesh="link6_mesh" material="robot_white"/>
+
+                                    <site name="tool_site" pos="0 0 0" quat="1 0 0 0"
+                                        type="sphere" size="0.02" rgba="1 0 0 1"/>
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+    </worldbody>
+</mujoco>

@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import argparse
 import sys
+import warnings
 from pathlib import Path
 
 import numpy as np
-from scipy.linalg import solve as solve_linear_system
+from scipy.linalg import LinAlgWarning, solve as solve_linear_system
 
 try:
     import pinocchio as pin
@@ -19,13 +20,13 @@ if not hasattr(pin, "buildModelFromUrdf"):
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_URDF_FILE = PROJECT_ROOT / "urdf" / "ROKAE_CR20.urdf"
-DEFAULT_POSE_FILE = PROJECT_ROOT / "Trajectory_TCP" / "circle_R500_TCP_poses_CR20_V50.txt"
-DEFAULT_OUTPUT_FILE = PROJECT_ROOT / "Trajectory_txt" / "circle_R500_joint_trajectory_CR20_V50.txt"
+DEFAULT_URDF_FILE = PROJECT_ROOT / "urdf" / "ER400_mdh_verified.urdf"
+DEFAULT_POSE_FILE = PROJECT_ROOT / "Trajectory_TCP" / "line_TCP_poses_EFT_50.txt"
+DEFAULT_OUTPUT_FILE = PROJECT_ROOT / "Trajectory_txt" / "line_joint_poses_EFT_50.txt"
 
 # link6 坐标系位于第 6 轴法兰处，本脚本将它作为 TCP 坐标系。
-DEFAULT_TCP_FRAME = "XMC20-R1650-W7S3B1_link6"
-DEFAULT_INITIAL_Q = np.deg2rad([-133.471137, -31.522699, -50.446545, -48.115254, 102.892501, 166.028089])
+DEFAULT_TCP_FRAME = "ER_link6"
+DEFAULT_INITIAL_Q = np.deg2rad([23.899639, 7.611226, -26.028895, -125.487918, -29.838993, 129.418231])
 JOINT_COUNT = len(DEFAULT_INITIAL_Q)
 
 
@@ -66,10 +67,8 @@ def build_model(
         raise FileNotFoundError(f"找不到 URDF：{urdf_path}")
 
     model = pin.buildModelFromUrdf(str(urdf_path))
-    if model.nq != JOINT_COUNT or model.nv != JOINT_COUNT:
-        raise ValueError(
-            f"期望 {JOINT_COUNT} 个单自由度关节，URDF 实际为 nq={model.nq}, nv={model.nv}。"
-        )
+    if model.nq != model.nv:
+        raise ValueError("当前程序只支持 nq 与 nv 相等的固定基座机器人。")
     if not model.existFrame(tcp_frame):
         raise ValueError(f"URDF 中找不到 TCP frame：{tcp_frame}")
 
@@ -80,7 +79,7 @@ def build_model(
         raise ValueError("URDF 关节限位无效：必须满足 lower < upper。")
     if np.any(velocity_limits <= 0.0):
         raise ValueError("URDF 关节速度上限必须大于 0。")
-
+# 
     return model, model.getFrameId(tcp_frame), lower, upper, velocity_limits
 
 
@@ -145,9 +144,22 @@ def solve_pose(
             return q, error_norm, True
 
         hessian = np.einsum("ki,kj->ij", jacobian, jacobian)
-        hessian += damping * np.eye(model.nv)
         gradient = np.einsum("ki,k->i", jacobian, error)
-        step = solve_linear_system(hessian, -gradient, assume_a="pos")
+
+        # 奇异点附近自动增大阻尼，直到法方程可以稳定求解。
+        for _ in range(8):
+            regularized = hessian + damping * np.eye(model.nv)
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("error", LinAlgWarning)
+                    step = solve_linear_system(
+                        regularized, -gradient, assume_a="pos", check_finite=False
+                    )
+                break
+            except (np.linalg.LinAlgError, LinAlgWarning):
+                damping = min(1e6, damping * 10.0)
+        else:
+            return q, error_norm, False
         step_norm = np.linalg.norm(step)
         if step_norm > 0.5:
             step *= 0.5 / step_norm
@@ -157,7 +169,7 @@ def solve_pose(
             candidate_error, _ = error_and_jacobian(model, data, frame_id, candidate, target)
             if np.linalg.norm(candidate_error) < error_norm:
                 q = candidate
-                damping = max(1e-10, damping * 0.5)
+                damping = max(1e-8, damping * 0.5)
                 break
         else:
             damping = min(1e6, damping * 10.0)

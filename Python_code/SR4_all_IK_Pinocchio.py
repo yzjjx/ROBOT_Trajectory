@@ -1,4 +1,4 @@
-"""使用 URDF 和 Pinocchio 搜索 SR4 的不同数值 IK 分支。
+"""使用 URDF 和 Pinocchio 搜索机器人的不同数值 IK 分支。
 
 多初值数值搜索不能从数学上保证找到全部解析解，但增加网格密度和随机初值
 数量可以降低漏解概率。
@@ -13,23 +13,22 @@ from pathlib import Path
 
 import numpy as np
 
-# 从另一个文件获取机器人参数
-from Tra_generate_Pinocchio_DH import (
-    DEFAULT_INITIAL_Q,
-    DEFAULT_TCP_FRAME,
-    DEFAULT_URDF_FILE,
-    build_model,
-    pin,
-    solve_pose,
-)
+from Tra_generate_Pinocchio_DH import build_model, pin, solve_pose
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+# 更换机器人时，只需修改下面两项；也可以用 --urdf 和 --tcp-frame 临时指定。
+DEFAULT_URDF_FILE = PROJECT_ROOT / "urdf" / "ER400_mdh_verified.urdf"
+DEFAULT_TCP_FRAME = "ER_link6"
 
 
 # 目标 TCP 位姿：平移单位 m。
 TARGET_TCP = np.array(
     [
-        [0.0, 0.0, 1.0, 0.350+0.300-0.353606789],
-        [0.0, 1.0, 0.0, 0],
-        [-1.0, 0.0, 0.0, 1+0.5+0.353606789],
+        [0.0, 0.0, 1.0, 2.276],
+        [0.0, 1.0, 0.0, 0.9],
+        [-1.0, 0.0, 0.0, 1.880],
         [0.0, 0.0, 0.0, 1.0],
     ],
     dtype=float,
@@ -42,10 +41,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--urdf", type=Path, default=DEFAULT_URDF_FILE)
     parser.add_argument("--tcp-frame", default=DEFAULT_TCP_FRAME)
     parser.add_argument(
+        "--initial-q", type=float, nargs="+",
+        help="可选的优先 IK 初值，单位 rad；数量必须等于 URDF 关节数。",
+    )
+    parser.add_argument(
         "--grid-points",
         type=int,
         default=3,
-        help="每个关节的网格初值数；3 对应 3^6=729 个初值。",
+        help="每个关节的网格初值数；六轴机器人取 3 时共有 729 个初值。",
     )
     parser.add_argument(
         "--random-starts",
@@ -66,7 +69,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def validate_settings(args: argparse.Namespace) -> None:
+def validate_settings(model, args: argparse.Namespace) -> None:
     if TARGET_TCP.shape != (4, 4):
         raise ValueError("TARGET_TCP 必须是 4×4 矩阵。")
     if not np.allclose(TARGET_TCP[3], [0.0, 0.0, 0.0, 1.0]):
@@ -80,6 +83,8 @@ def validate_settings(args: argparse.Namespace) -> None:
         raise ValueError("max-iterations 和 tolerance 必须大于 0。")
     if args.cluster_tolerance_deg <= 0.0:
         raise ValueError("cluster-tolerance-deg 必须大于 0。")
+    if args.initial_q is not None and len(args.initial_q) != model.nq:
+        raise ValueError(f"initial-q 需要 {model.nq} 个数。")
 
 
 def wrapped_difference(q1: np.ndarray, q2: np.ndarray) -> np.ndarray:
@@ -134,8 +139,9 @@ def search_solutions(
         )
         return converged and add_if_new(solutions, q, cluster_tolerance)
 
-    # 先试两个常用初值，再做确定性网格搜索。
-    try_seed(DEFAULT_INITIAL_Q)
+    # 先试用户初值和中位姿态，再做确定性网格搜索。
+    if args.initial_q is not None:
+        try_seed(np.asarray(args.initial_q))
     try_seed(np.zeros(model.nq))
 
     total_grid = args.grid_points ** model.nq
@@ -191,7 +197,7 @@ def print_solutions(model, frame_id: int, solutions: list[np.ndarray]) -> None:
 def main() -> int:
     args = parse_args()
     model, frame_id, lower, upper, _ = build_model(args.urdf, args.tcp_frame)
-    validate_settings(args)
+    validate_settings(model, args)
 
     print(f"模型：{model.name}（{args.urdf.resolve()}）")
     print(f"TCP frame：{args.tcp_frame}")

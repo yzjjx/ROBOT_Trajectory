@@ -5,21 +5,27 @@
 %% 可配置参数
 % 起点和终点，单位：mm。
 % NB4直线
-P_start = [331.063710; -8.558820; 319.977830];
-P_end   = [331.063710;  31.441180; 319.977830];
+% P_start = [331.063710; -8.558820; 319.977830];
+% P_end   = [331.063710;  31.441180; 319.977830];
 % % SR4直线
 % P_start = [500; -20; 400];
 % P_end   = [500;  20; 400];
 % 期望TCP运行速度和轨迹采样频率。
+
+% EFT直线
+P_start = [2276;900;1880]; 
+P_end = [2276;-900;1880];
+
 v = 50;       % mm/s
-fre = 1000;   % Hz
+fre = 250;   % Hz
 
 % TCP相对于基坐标系的固定姿态
 posture = [ 0  0  1;
             0  1  0;
            -1  0  0];
 
-output_name = 'line_TCP_poses_NB4_40.txt';
+% output_name = 'line_TCP_poses_NB4_40.txt';
+output_name = 'line_TCP_poses_EFT_50.txt';
 
 %% 输入检查
 if ~isequal(size(P_start), [3, 1]) || ~isequal(size(P_end), [3, 1]) || ...

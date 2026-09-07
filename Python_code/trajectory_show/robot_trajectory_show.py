@@ -127,7 +127,8 @@ def run(args):
 
     # xml_path = args.xml or project_dir /".."/ "xml" / "ROKAE_SR4.XML"
     # xml_path = args.xml or project_dir / "xml" / "NB4-R475-04.xml"
-    xml_path = args.xml or project_dir /".."/ "xml" / "ROKAE_CR20.XML"
+    # xml_path = args.xml or project_dir /".."/ "xml" / "ROKAE_CR20.XML"
+    xml_path = args.xml or project_dir /".."/ "xml" / "ER400.XML"
 
     # 直线轨迹
     # # NB4直线轨迹，速度50mm/s
@@ -139,7 +140,9 @@ def run(args):
     # SR4圆弧轨迹半径200与半径20，速度50mm/s
     # trajectory_path = args.trajectory or project_dir /".."/ "Trajectory_txt"/"circle_R200_joint_trajectory_SR4_V50.txt"
     # CR20圆弧轨迹半径400与半径20，速度50mm/s
-    trajectory_path = args.trajectory or project_dir /".."/ "Trajectory_txt"/"circle_R500_joint_trajectory_CR20_V50.txt"
+    # trajectory_path = args.trajectory or project_dir /".."/ "Trajectory_txt"/"circle_R500_joint_trajectory_CR20_V50.txt"
+    #ER400
+    trajectory_path = args.trajectory or project_dir /".."/ "Trajectory_txt"/"line_joint_poses_EFT_50.txt"
 
     xml_path = xml_path.resolve()
     trajectory_path = trajectory_path.resolve()
